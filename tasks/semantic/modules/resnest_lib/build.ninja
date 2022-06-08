@@ -1,0 +1,22 @@
+ninja_required_version = 1.3
+cxx = c++
+
+cflags = -DTORCH_EXTENSION_NAME=enclib_cpu -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\"_clang\" -DPYBIND11_STDLIB=\"_libcpp\" -DPYBIND11_BUILD_ABI=\"_cxxabi1002\" -isystem /Users/stewart/Documents/python-envs/rangenet/lib/python3.8/site-packages/torch/include -isystem /Users/stewart/Documents/python-envs/rangenet/lib/python3.8/site-packages/torch/include/torch/csrc/api/include -isystem /Users/stewart/Documents/python-envs/rangenet/lib/python3.8/site-packages/torch/include/TH -isystem /Users/stewart/Documents/python-envs/rangenet/lib/python3.8/site-packages/torch/include/THC -isystem /Library/Frameworks/Python.framework/Versions/3.8/include/python3.8 -D_GLIBCXX_USE_CXX11_ABI=0 -fPIC -std=c++14
+post_cflags = 
+ldflags = -shared -L/Users/stewart/Documents/python-envs/rangenet/lib/python3.8/site-packages/torch/lib -lc10 -ltorch_cpu -ltorch -ltorch_python -undefined dynamic_lookup
+
+rule compile
+  command = $cxx -MMD -MF $out.d $cflags -c $in -o $out $post_cflags
+  depfile = $out.d
+  deps = gcc
+
+rule link
+  command = $cxx $in $ldflags -o $out
+
+build operator_cpu.o: compile /Users/stewart/Documents/hw/7123dl/pj2/train_project2/tasks/semantic/modules/resnest_lib/operator_cpu.cpp
+build rectify_cpu.o: compile /Users/stewart/Documents/hw/7123dl/pj2/train_project2/tasks/semantic/modules/resnest_lib/rectify_cpu.cpp
+
+build enclib_cpu.so: link operator_cpu.o rectify_cpu.o
+
+default enclib_cpu.so
+
